@@ -19,7 +19,9 @@ defmodule ExCoveralls do
   This method will be called from mix to trigger coverage analysis.
   """
   def start(compile_path, _opts) do
+    compile_path = List.wrap(compile_path)
     Cover.compile(compile_path)
+
     fn() ->
       execute(ConfServer.get, compile_path)
     end
