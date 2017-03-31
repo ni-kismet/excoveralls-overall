@@ -8,15 +8,8 @@ defmodule ExCoveralls.Mixfile do
       deps: deps(),
       description: description(),
       package: package(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: cli_env_for(:test, [
-        "coveralls", "coveralls.detail", "coveralls.html", "coveralls.json", "coveralls.post",
-      ])
+      test_coverage: [tool: ExCoveralls]
     ]
-  end
-
-  defp cli_env_for(env, tasks) do
-    Enum.reduce(tasks, [], fn(key, acc) -> Keyword.put(acc, :"#{key}", env) end)
   end
 
   # Configuration for the OTP application
