@@ -26,10 +26,19 @@ defmodule ExCoveralls do
   @doc """
   This method will be called from mix to trigger coverage analysis.
   """
-  def start(compile_path, _opts) do
-    Cover.compile(compile_path)
+  def start(compile_path, opts) do
+    if Mix.Project.umbrella?(Mix.Project.config) do
+      Enum.map(Mix.Dep.Umbrella.loaded, fn(x) -> "#{x.opts[:build]}/ebin" end)
+    else
+      List.wrap(compile_path)
+    end
+    |> run_start(opts)
+  end
+
+  defp run_start(compile_paths, _opts) do
+    Cover.compile(compile_paths)
     fn() ->
-      execute(ConfServer.get, compile_path)
+      execute(ConfServer.get, compile_paths)
     end
   end
 
@@ -43,7 +52,12 @@ defmodule ExCoveralls do
     end
   end
 
-  defp store_stats(stats, options, compile_path) do
+  defp store_stats(stats, options, compile_paths) when is_list(compile_paths) do
+    Enum.each(compile_paths, fn(compile_path) -> 
+      store_stats(stats, options, compile_path) end)
+  end
+
+  defp store_stats(stats, options, compile_path) when is_binary(compile_path) do
     {sub_app_name, _sub_app_path} =
       ExCoveralls.SubApps.find(options[:sub_apps], compile_path)
     stats = Stats.append_sub_app_name(stats, sub_app_name, options[:apps_path])

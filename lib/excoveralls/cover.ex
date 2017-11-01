@@ -6,10 +6,13 @@ defmodule ExCoveralls.Cover do
   @doc """
   Compile the beam files for coverage analysis.
   """
-  def compile(compile_path) do
+  def compile(compile_paths) do
+    compile_paths = List.wrap(compile_paths)
     :cover.stop
     :cover.start
-    :cover.compile_beam_directory(compile_path |> string_to_charlist)
+    Enum.each(compile_paths, fn(compile_path) ->
+      :cover.compile_beam_directory(compile_path |> string_to_charlist)
+    end)
   end
 
   @doc """
